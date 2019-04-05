@@ -1,17 +1,24 @@
+# main Makefile template for Linux and MacOS, populated by configure
+
 all: @ALL_TARGETS@ @OMLIBRARY_TARGET@
 
 .PRECIOUS: Makefile
+.PHONY:
 
 omc:
 	$(MAKE) -C OMCompiler @OMC_TARGET@
 omlibrary-core:
-	$(MAKE) -C libraries BUILD_DIR=@OMBUILDDIR@/lib/omlibrary "host_short=@host_short@" "RPATH_QMAKE=@RPATH_QMAKE@ @CMAKE_LDFLAGS@" "SHREXT=@SHREXT@" "MODELICA3D_TARGET=@MODELICA3D_TARGET@" core
+	$(MAKE) -C libraries BUILD_DIR=@OMBUILDDIR@/lib/omlibrary "host_short=@host_short@" "RPATH_QMAKE=@RPATH_QMAKE@ @CMAKE_LDFLAGS@" "SHREXT=@SHREXT@" core
 omlibrary-all:
-	$(MAKE) -C libraries BUILD_DIR=@OMBUILDDIR@/lib/omlibrary "host_short=@host_short@" "RPATH_QMAKE=@RPATH_QMAKE@ @CMAKE_LDFLAGS@" "SHREXT=@SHREXT@" "MODELICA3D_TARGET=@MODELICA3D_TARGET@" all
+	$(MAKE) -C libraries BUILD_DIR=@OMBUILDDIR@/lib/omlibrary "host_short=@host_short@" "RPATH_QMAKE=@RPATH_QMAKE@ @CMAKE_LDFLAGS@" "SHREXT=@SHREXT@" all
 omplot: omc
 	$(MAKE) -C OMPlot
-omedit: omc omplot
+omedit: omc omplot omsimulator
 	$(MAKE) -C OMEdit
+omsimulator:
+	$(MAKE) -C OMSimulator config-3rdParty CERES=OFF "host_short=@host_short@" CC="@CC@" CXX="@CXX@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" CXXFLAGS="@CXXFLAGS@"
+	$(MAKE) -C OMSimulator config-OMSimulator OMBUILDDIR=@OMBUILDDIR@ OMSYSIDENT=OFF "host_short=@host_short@" CC="@CC@" CXX="@CXX@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" CXXFLAGS="@CXXFLAGS@"
+	$(MAKE) -C OMSimulator OMBUILDDIR=@OMBUILDDIR@ "host_short=@host_short@" CC="@CC@" CC="@CC@" CXX="@CXX@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" CXXFLAGS="@CXXFLAGS@"
 omnotebook: omc omplot
 	$(MAKE) -C OMNotebook
 omoptim: omc omplot
@@ -24,7 +31,7 @@ ReferenceFiles:
 	$(MAKE) -C testsuite/ReferenceFiles
 testsuite-depends: omc-diff ReferenceFiles
 
-SOURCE_DIRS_UTF8=OMEdit/ OMShell/ OMNotebook/ OMOptim/ OMPlot/ OMCompiler/Compiler/ OMCompiler/SimulationRuntime/ `bash -c echo testsuite/flattening/libraries/3rdParty/{PlanarMechanics,siemens,SiemensPower,ThermoSysPro}` testsuite/openmodelica/modelicaML testsuite/AVM testsuite/simulation
+SOURCE_DIRS_UTF8=OMEdit/OMEdit OMShell/OMShell OMNotebook/OMNotebook OMOptim/OMOptim OMPlot/OMPlot OMCompiler/Compiler/ OMCompiler/SimulationRuntime/ `bash -c echo testsuite/flattening/libraries/3rdParty/{PlanarMechanics,siemens,SiemensPower,ThermoSysPro}` testsuite/openmodelica/modelicaML testsuite/AVM testsuite/simulation
 SOURCE_DIRS=$(SOURCE_DIRS_UTF8) # testsuite/flattening/libraries/3rdParty/HumMod
 
 bom-error:
@@ -72,9 +79,9 @@ LIBGITDIRS = `ls -f libraries/git`
 
 gitclean:
 	git submodule foreach --recursive 'git clean -fdx -e /git -e /svn'
-	git clean -fdx -e OpenModelicaSetup -e .project -e .externalToolBuilders/OMDev-MINGW-OpenModelicaBuilder.launch
+	git clean -fdx -e OpenModelicaSetup -e OMSetup -e .project -e .externalToolBuilders/OMDev-MINGW-OpenModelicaBuilder.launch
 	for d in $(LIBGITDIRS); do git clean -fdx libraries/git/$$d; done
-	
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 datarootdir = @datarootdir@
@@ -104,7 +111,7 @@ install-dirs:
 	mkdir -p ${INSTALL_DOCDIR}/omc/testmodels
 	mkdir -p ${INSTALL_MANDIR}/man1/
 	mkdir -p ${INSTALL_LOCALEDIR}
-	test ! -d "@OMBUILDDIR@"/share/omnotebook/ || mkdir -p ${INSTALL_SHAREDIR}/omnotebook/
+	test ! -d "@OMBUILDDIR@"/share/omnotebook/nls/ || mkdir -p ${INSTALL_SHAREDIR}/omnotebook/nls/
 	test ! -d "@OMBUILDDIR@"/share/omshell/nls/ || mkdir -p ${INSTALL_SHAREDIR}/omshell/nls/
 	test ! -d "@OMBUILDDIR@"/share/omedit/nls/ || mkdir -p ${INSTALL_SHAREDIR}/omedit/nls/
 	mkdir -p ${INSTALL_SHAREDIR}/omc/scripts ${INSTALL_JAVADIR}
@@ -127,11 +134,12 @@ install: install-dirs
 	# man pages
 	# cp -p "@OMBUILDDIR@"/share/man/man1/*.gz ${INSTALL_MANDIR}/man1/
 	# Shared data
-	cp -p "@OMBUILDDIR@"/share/omc/*.* ${INSTALL_SHAREDIR}/omc/
+	cp -a "@OMBUILDDIR@"/share/omc/*.* "@OMBUILDDIR@"/share/omc/runtime ${INSTALL_SHAREDIR}/omc/
 	test ! -d "@OMBUILDDIR@"/share/omnotebook/ || cp -rp "@OMBUILDDIR@"/share/omnotebook/* ${INSTALL_SHAREDIR}/omnotebook/
 	test ! -d "@OMBUILDDIR@"/share/omshell/ || cp -p "@OMBUILDDIR@"/share/omshell/*.xml ${INSTALL_SHAREDIR}/omshell/
 	test ! -d "@OMBUILDDIR@"/share/omshell/nls/ || cp -p "@OMBUILDDIR@"/share/omshell/nls/*.qm ${INSTALL_SHAREDIR}/omshell/nls/
 	test ! -d "@OMBUILDDIR@"/share/omedit/nls/ || cp -p "@OMBUILDDIR@"/share/omedit/nls/*.qm ${INSTALL_SHAREDIR}/omedit/nls/
+	test ! -d "@OMBUILDDIR@"/share/omnotebook/nls/ || cp -p "@OMBUILDDIR@"/share/omnotebook/nls/*.qm ${INSTALL_SHAREDIR}/omnotebook/nls/
 	# Scripts
 	cp -rp "@OMBUILDDIR@"/share/omc/scripts/*.* "@OMBUILDDIR@"/share/omc/scripts/OpenTurns ${INSTALL_SHAREDIR}/omc/scripts
 	# Java

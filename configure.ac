@@ -5,6 +5,8 @@ AC_INIT([OpenModelica],[dev],[https://trac.openmodelica.org/OpenModelica],[openm
 
 AC_LANG([C])
 AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_CPP
 
 m4_include([common/m4/pre-commit.m4])
 m4_include([common/m4/ombuilddir.m4])
@@ -56,17 +58,6 @@ if test ! -z "$OMLIBRARY_TARGET"; then
   fi
 fi
 
-AC_SUBST(MODELICA3D_TARGET)
-AC_MSG_CHECKING([if the user wants Modelica3D])
-MODELICA3D_TARGET="yes"
-AC_ARG_ENABLE(modelica3d, [  --disable-modelica3d          Modelica3D library (dependencies checked by cmake later on; enabled by default)],[test "xno" = x"$enableval" && MODELICA3D_TARGET=""],[])
-if test -z "$MODELICA3D_TARGET" ; then
-AC_MSG_RESULT([no])
-else
-AC_MSG_RESULT([yes])
-MODELICA3D_TARGET="omlibrary-modelica3d"
-fi
-
 AC_SUBST(CMAKE_LDFLAGS)
 if echo $host | grep -i darwin; then
   CMAKE_LDFLAGS="-Wl,-undefined -Wl,dynamic_lookup"
@@ -75,10 +66,10 @@ fi
 m4_include([common/m4/corba.m4])
 AC_SUBST(ALL_TARGETS)
 if test ! -z "$USE_CORBA"; then
-  CORBA_TARGETS="OMNotebook-omnotebook OMOptim-omoptim OMShell-omshell"
+  CORBA_TARGETS="OMOptim-omoptim"
 fi
 
-for dir_target in OMCompiler-omc OMPlot-omplot OMEdit-omedit $CORBA_TARGETS; do
+for dir_target in OMCompiler-omc OMPlot-omplot OMEdit-omedit OMNotebook-omnotebook OMShell-omshell $CORBA_TARGETS; do
   dir=`echo $dir_target | cut -d- -f1`
   if test ! -f "$dir/configure.ac"; then
     AC_MSG_NOTICE("Subproject $dir does not exist")
@@ -96,9 +87,9 @@ if test -f testsuite/Makefile; then
 fi
 
 
-AC_CONFIG_SUBDIRS([OMCompiler OMPlot OMEdit])
+AC_CONFIG_SUBDIRS([OMCompiler OMPlot OMEdit OMNotebook OMShell])
 if test ! -z "$USE_CORBA"; then
-  AC_CONFIG_SUBDIRS([OMShell OMNotebook OMOptim])
+  AC_CONFIG_SUBDIRS([OMOptim])
 fi
 
 AC_OUTPUT(Makefile)

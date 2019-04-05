@@ -1,18 +1,9 @@
-[submodule "OMEdit"]
-	path = OMEdit
-	url = ../OMEdit.git
 [submodule "doc"]
 	path = doc
 	url = ../OpenModelica-doc.git
 [submodule "OMOptim"]
 	path = OMOptim
 	url = ../OMOptim.git
-[submodule "OMPlot"]
-	path = OMPlot
-	url = ../OMPlot.git
-[submodule "OMNotebook"]
-	path = OMNotebook
-	url = ../OMNotebook.git
 [submodule "common"]
 	path = common
 	url = ../OpenModelica-common.git
@@ -22,9 +13,6 @@
 [submodule "OMC"]
 	path = OMCompiler
 	url = ../OMCompiler.git
-[submodule "testsuite"]
-	path = testsuite
-	url = ../OpenModelica-testsuite.git
-[submodule "OMShell"]
-	path = OMShell
-	url = ../OMShell.git
+[submodule "OMSimulator"]
+	path = OMSimulator
+	url = ../OMSimulator.git
