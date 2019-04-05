@@ -56,7 +56,7 @@ getErrorString();
 buildModel(DataReconciliationTests.Splitter1);
 getErrorString();
 
-system("./DataReconciliationTests.Splitter1 -reconcile -sx=./Splitter1_Sx.csv -eps=0.0023 > Splitter1_log.txt");
+system("./DataReconciliationTests.Splitter1 -reconcile -sx=./Splitter1_Sx.csv -eps=0.0023");
 getErrorString();
 
 
