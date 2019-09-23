@@ -207,7 +207,8 @@ if true then /* Suppress output */
     "../Util/System.mo",
     "../Util/Util.mo",
     "../Util/VarTransform.mo",
-    "../Util/ZeroMQ.mo"
+    "../Util/ZeroMQ.mo",
+    "../Util/OMSimulator.mo"
   };
   backendfiles := if OpenModelica.Scripting.getEnvironmentVar("OPENMODELICA_BACKEND_STUBS")<>"" then
   {

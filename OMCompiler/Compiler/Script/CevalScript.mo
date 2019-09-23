@@ -59,6 +59,7 @@ import GlobalScript;
 import Interactive;
 import Values;
 import SimCode;
+import OMSimulator;
 
 // protected imports
 protected
@@ -1807,6 +1808,19 @@ algorithm
         vals = List.map(paths,ValuesUtil.makeCodeTypeName);
       then
         (cache,ValuesUtil.makeArray(vals));
+
+    // From here OMSimulator API calls
+    case (cache,_,"oms_getVersion",{},_)
+      equation
+        str_1 = OMSimulator.oms_getVersion();
+      then
+        (cache,Values.STRING(str_1));
+
+    case (cache,_,"oms_setLogFile",{Values.STRING(filename)},_)
+      equation
+        status = OMSimulator.oms_setLogFile(filename);
+      then
+        (cache,Values.INTEGER(status));
 
     else
       algorithm

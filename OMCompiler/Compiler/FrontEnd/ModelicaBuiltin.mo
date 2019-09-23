@@ -4171,6 +4171,20 @@ annotation(
 </html>"), preferredView="text");
 end generateScriptingAPI;
 
+// OMSimulator API calls
+function oms_getVersion "Returns the version of the OMSimulator."
+  output String version;
+external "builtin";
+annotation(preferredView="text");
+end oms_getVersion;
+
+function oms_setLogFile "sets the LogFilename defined by user."
+  input String filename;
+  output Integer status;
+external "builtin";
+annotation(preferredView="text");
+end oms_setLogFile;
+
 package Experimental
 
 function relocateFunctions
