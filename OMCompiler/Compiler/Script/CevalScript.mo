@@ -60,6 +60,7 @@ import Interactive;
 import Values;
 import SimCode;
 import OMSimulator;
+import CevalScriptOMSimulator;
 
 // protected imports
 protected
@@ -533,7 +534,7 @@ algorithm
              title,xLabel,yLabel,filename2,varNameStr,xml_filename,xml_contents,visvar_str,pwd,omhome,omlib,omcpath,os,
              platform,usercflags,senddata,res,workdir,gcc,confcmd,touch_file,uname,filenameprefix,compileDir,libDir,exeDir,configDir,from,to,
              gridStr, logXStr, logYStr, x1Str, x2Str, y1Str, y2Str, curveWidthStr, curveStyleStr, legendPosition, footer, autoScaleStr,scriptFile,logFile, simflags2, outputFile,
-             systemPath, gccVersion, gd, strlinearizeTime, direction, suffix;
+             systemPath, gccVersion, gd, strlinearizeTime, direction, suffix,cref,crefA,crefB;
       list<DAE.Exp> simOptions;
       list<Values.Value> vals;
       Absyn.Path path,classpath,className,baseClassPath,parentClass;
@@ -1810,6 +1811,49 @@ algorithm
         (cache,ValuesUtil.makeArray(vals));
 
     // From here OMSimulator API calls
+    /*
+    case (cache,_,"oms_addBus",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_addBus(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_addConnection",{Values.STRING(cref),Values.STRING(str1)},_)
+      equation
+        status = OMSimulator.oms_addConnection(cref,str1);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_addConnector",{Values.STRING(cref),Values.ENUM_LITERAL(index=i),Values.ENUM_LITERAL(index=i1)},_)
+      equation
+        status = OMSimulator.oms_addConnector(cref,(i-1),(i1-1));
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_addConnectorToBus",{Values.STRING(cref),Values.STRING(str1)},_)
+      equation
+        status = OMSimulator.oms_addConnectorToBus(cref,str1);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_addConnectorToTLMBus",{Values.STRING(cref),Values.STRING(str1),Values.STRING(str2)},_)
+      equation
+        status = OMSimulator.oms_addConnectorToTLMBus(cref,str1,str2);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_addSubModel",{Values.STRING(cref),Values.STRING(str1)},_)
+      equation
+        status = OMSimulator.oms_addSubModel(cref,str1);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_addSystem",{Values.STRING(cref),Values.ENUM_LITERAL(index=i)},_)
+      equation
+        status = OMSimulator.oms_addSystem(cref,i-1);
+      then
+        (cache,Values.INTEGER(status));
+
     case (cache,_,"oms_getVersion",{},_)
       equation
         str_1 = OMSimulator.oms_getVersion();
@@ -1822,6 +1866,106 @@ algorithm
       then
         (cache,Values.INTEGER(status));
 
+
+
+    case (cache,_,"oms_newModel",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_newModel(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setTempDirectory",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_setTempDirectory(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setResultFile",{Values.STRING(cref),Values.STRING(str1),Values.INTEGER(i)},_)
+      equation
+        status = OMSimulator.oms_setResultFile(cref,str1,i);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setStartTime",{Values.STRING(cref),Values.REAL(r)},_)
+      equation
+        status = OMSimulator.oms_setStartTime(cref,r);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setStopTime",{Values.STRING(cref),Values.REAL(r)},_)
+      equation
+        status = OMSimulator.oms_setStopTime(cref,r);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setReal",{Values.STRING(cref),Values.REAL(r)},_)
+      equation
+        status = OMSimulator.oms_setReal(cref,r);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setRealInputDerivative",{Values.STRING(cref),Values.REAL(r)},_)
+      equation
+        status = OMSimulator.oms_setRealInputDerivative(cref,r);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setFixedStepSize",{Values.STRING(cref),Values.REAL(r)},_)
+      equation
+        status = OMSimulator.oms_setFixedStepSize(cref,r);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_instantiate",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_instantiate(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_initialize",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_initialize(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_simulate",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_simulate(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_getReal",{Values.STRING(cref)},_)
+      equation
+      (status,r) = OMSimulator.oms_getReal(cref);
+      then
+        (cache,Values.TUPLE({Values.INTEGER(status),Values.REAL(r)}));
+
+    case (cache,_,"oms_terminate",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_terminate(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_delete",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_delete(cref);
+      then
+        (cache,Values.INTEGER(status));
+
+    case (cache,_,"oms_setCommandLineOption",{Values.STRING(cref)},_)
+      equation
+        status = OMSimulator.oms_setCommandLineOption(cref);
+      then
+        (cache,Values.INTEGER(status));
+    */
+
+
+    case (cache,_,_,_,_)
+      equation
+        //print("\n inside matched case");
+        v = CevalScriptOMSimulator.ceval(inFunctionName,inVals);
+       then
+         (cache,v);
     else
       algorithm
         (cache,v) := CevalScriptBackend.cevalInteractiveFunctions3(inCache,inEnv,inFunctionName,inVals,msg);

@@ -1,0 +1,87 @@
+// name:     DualMassOscillator.mos
+// status:   correct
+// teardown_command: rm -rf temp_dualmassoscillator/ DualMassOscillator.mat
+
+setCommandLineOptions("-g=MetaModelica");
+
+echo(false);
+
+loadString("
+function printStatus
+  input Integer status;
+  input Integer expected;
+protected
+  String outstatus;
+  String cmp=\" \";
+algorithm
+  if (status==expected) then
+    cmp := \"correct\";
+  else
+    cmp := \"wrong\";
+  end if;
+  if 0 == status then
+    outstatus := \" ok\";
+  elseif 1 == status then
+    outstatus := \" warning\";
+  elseif 3 == status then
+    outstatus := \" error\";
+  end if;
+  print(\"status:  [\" + cmp  + \"]\" + outstatus);
+  print(\"\n\");
+end printStatus;");
+
+oms_setCommandLineOption("--suppressPath=true --ignoreInitialUnknowns=true");
+status:=oms_setTempDirectory("./temp_dualmassoscillator/");
+oms_newModel("DualMassOscillator");
+//oms_addSystem("DualMassOscillator.root", "oms_system_sc");
+oms_addSystem("DualMassOscillator.root", OpenModelica.Scripting.oms_system.oms_system_sc);
+
+//instantiate FMUs
+oms_addSubModel("DualMassOscillator.root.system1", "./resources/DualMassOscillator.System1.fmu");
+oms_addSubModel("DualMassOscillator.root.system2", "./resources/DualMassOscillator.System2.fmu");
+
+//add connections
+oms_addConnection("DualMassOscillator.root.system1.F", "DualMassOscillator.root.system2.F");
+oms_addConnection("DualMassOscillator.root.system1.s1", "DualMassOscillator.root.system2.s1");
+oms_addConnection("DualMassOscillator.root.system1.v1", "DualMassOscillator.root.system2.v1");
+oms_addConnection("DualMassOscillator.root.system1.a1", "DualMassOscillator.root.system2.a1");
+
+//simulation settings
+oms_setResultFile("DualMassOscillator", "DualMassOscillator.mat", 100);
+oms_setStopTime("DualMassOscillator", 0.1);
+oms_setFixedStepSize("DualMassOscillator.root", 1e-5);
+
+oms_instantiate("DualMassOscillator");
+oms_setReal("DualMassOscillator.root.system2.s2_start", 2.5);
+
+oms_initialize("DualMassOscillator");
+(_,v1):=oms_getReal("DualMassOscillator.root.system1.s1");
+(_,v2):=oms_getReal("DualMassOscillator.root.system2.s2");
+print("info:    Initialization\n");
+print("info:      system1.s1: " + realString(v1)+"\n");
+print("info:      system2.s2: " + realString(v2)+"\n");
+oms_simulate("DualMassOscillator");
+(_,v1):=oms_getReal("DualMassOscillator.root.system1.s1");
+(_,v2):=oms_getReal("DualMassOscillator.root.system2.s2");
+print("info:    Simulation\n");
+print("info:      system1.s1: " + realString(v1)+"\n");
+print("info:      system2.s2: " + realString(v2)+"\n");
+
+oms_terminate("DualMassOscillator");
+oms_delete("DualMassOscillator");
+
+
+// Result:
+// true
+// info:    maximum step size for 'DualMassOscillator.root': 0.100000
+// info:    Result file: DualMassOscillator_omc.mat (bufferSize=100)
+// info:    Initialization
+// info:      system1.s1: 1.0
+// info:      system2.s2: 2.5
+// info:    Simulation
+// info:      system1.s1: 0.9106027676192013
+// info:      system2.s2: 1.95633955871707
+// info:    Final Statistics for 'DualMassOscillator.root':
+//          NumSteps = 698 NumRhsEvals  = 1025 NumLinSolvSetups = 174
+//          NumNonlinSolvIters = 1024 NumNonlinSolvConvFails = 0 NumErrTestFails = 78
+// endResult
