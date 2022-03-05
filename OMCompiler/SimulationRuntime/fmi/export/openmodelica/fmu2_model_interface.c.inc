@@ -1199,7 +1199,7 @@ fmi2Status fmi2FreeFMUstate(fmi2Component c, fmi2FMUstate* FMUstate)
     INTERNAL_FMU_STATE* internal_state = (INTERNAL_FMU_STATE*) *FMUstate;
     freeRingBuffer(internal_state->simulationData);
     functions->freeMemory(*FMUstate);
-    *FMUstate = nullptr;
+    *FMUstate = NULL;
   }
   return fmi2OK;
 }
